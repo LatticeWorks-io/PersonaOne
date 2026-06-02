@@ -15,12 +15,23 @@ Isolated 12-component creator platform. Code, configs, and architectural decisio
 
 ```
 /opt/latticeworks.io/
-├── craft-pages.json    # Craft folder + per-page doc/collection IDs
+├── craft-pages.json          # folder + per-page doc/collection IDs
+├── craft-content/            # snapshot of the 12-page playbook as markdown
+│   ├── start-here.md
+│   └── page-01.md … page-12.md
+├── scripts/
+│   ├── build_lw_page01.py        # original Page 01 + folder + Start Here builder
+│   ├── build_lw_pages_02_12.py   # batch builder for pages 02–12
+│   ├── resume_lw_pages.py        # resume helper after partial run
+│   ├── cleanup_and_finish.py     # cleanup + finishing touches
+│   └── fetch_craft_docs.py       # pull craft-content/ snapshot from live Craft
 ├── README.md
 └── .gitignore
 ```
 
-`craft-pages.json` is symlinked from `~/.config/craft/latticeworks-ids.json` so existing Craft helpers keep working.
+`craft-pages.json` is symlinked from `~/.config/craft/latticeworks-ids.json` so existing Craft helpers keep working. The build scripts read `~/.config/craft/connect-url` and `~/.config/craft/token` for credentials — those stay outside the repo.
+
+Refresh the snapshot any time with `python3 scripts/fetch_craft_docs.py`.
 
 ## Craft playbook
 
