@@ -1,0 +1,48 @@
+{
+  "folder_id": "50527e79-f818-7a20-700f-d6d0596216ac",
+  "start_here_doc_id": "6a3f32df-1168-296f-4d1d-c97188cd2cd2",
+  "pages": {
+    "page_01": {
+      "title": "Page 01 \u2014 Set up isolated workspace",
+      "doc_id": "16758d07-a2ac-f7ab-00c6-96e37e212d5b",
+      "collection_id": "7dc08be9-82e0-e5c3-fd63-f6ecb212b953"
+    },
+    "page_02": {
+      "doc_id": "d7aa9d6a-7fb2-aad1-6ffb-36fc80eb1aef"
+    },
+    "page_03": {
+      "doc_id": "da4d46c7-ee25-e5d0-0226-3cbcee320eb5"
+    },
+    "page_04": {
+      "doc_id": "b8b8785d-443b-e58b-a547-2090a64a33ca"
+    },
+    "page_05": {
+      "doc_id": "02297da2-f2e8-9404-2c28-63098264278c"
+    },
+    "page_06": {
+      "doc_id": "e87ecf08-1b77-5d85-9d96-e4cf5d19874b"
+    },
+    "page_07": {
+      "doc_id": "b3d122eb-9864-4855-5d0d-cf0331c76926"
+    },
+    "page_08": {
+      "doc_id": "397ada36-43cf-9a26-b423-08e3b91ca3d7"
+    },
+    "page_09": {
+      "doc_id": "2261b5e7-dc0b-7e31-487f-e37c1f2fab40",
+      "collection_id": "d05aaff8-c701-9d48-5fdb-6a6b2ae85538"
+    },
+    "page_10": {
+      "doc_id": "bd22a182-4655-eb49-b60b-7fe68ee75252",
+      "collection_id": "a77f4878-5953-ef34-489b-6e21c5bb46a1"
+    },
+    "page_11": {
+      "doc_id": "c13422cb-04a2-235d-f7e5-b1c5d7a5b2fc",
+      "collection_id": "18bb08df-dcf1-dea5-99da-a9c15d6e62b3"
+    },
+    "page_12": {
+      "doc_id": "35df201d-e5d5-0e74-2fce-eddff803fbc5",
+      "collection_id": "679eafeb-9553-8abc-7493-c234d6276229"
+    }
+  }
+}
