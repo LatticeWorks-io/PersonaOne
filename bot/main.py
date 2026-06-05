@@ -55,6 +55,7 @@ def _build_app() -> tuple[Application, Storage, NowPaymentsClient | None]:
     app.bot_data["np"] = np_client
 
     app.add_handler(CommandHandler("start", handlers.cmd_start))
+    app.add_handler(CommandHandler("stats", handlers.cmd_stats))
     app.add_handler(CallbackQueryHandler(handlers.on_buy_stars, pattern=r"^buy_stars:"))
     app.add_handler(CallbackQueryHandler(handlers.on_buy_crypto, pattern=r"^buy_crypto:"))
     app.add_handler(PreCheckoutQueryHandler(handlers.on_precheckout))

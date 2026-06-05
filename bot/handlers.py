@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import uuid
 
 from telegram import (
@@ -99,9 +100,43 @@ async def on_successful_payment(update: Update, context: ContextTypes.DEFAULT_TY
         offer_name=offer_name,
         rail="stars",
         external_id=sp.telegram_payment_charge_id,
+        amount_xtr=int(getattr(sp, "total_amount", 0) or 0),
     )
     persona: Persona = context.application.bot_data["persona"]
     await update.message.reply_text(f"Payment received. {persona.paywall_message}")
+
+
+async def cmd_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Operator-only: dump revenue + buyer stats.
+
+    Authenticated by LW_OPERATOR_USER_ID env var. If not set, the command
+    silently no-ops (never reveal stats to a random buyer who guesses /stats).
+    """
+    operator_id_str = os.environ.get("LW_OPERATOR_USER_ID", "")
+    if not operator_id_str:
+        log.warning("/stats invoked but LW_OPERATOR_USER_ID not set; ignoring")
+        return
+    try:
+        operator_id = int(operator_id_str)
+    except ValueError:
+        log.warning("LW_OPERATOR_USER_ID is not a valid int; ignoring /stats")
+        return
+    if update.message.from_user.id != operator_id:
+        return  # silent — don't tip buyers off that /stats exists
+    storage: Storage = context.application.bot_data["storage"]
+    s = storage.revenue_summary(days=7)
+    msg = (
+        f"📊 LatticeWorks bot stats\n"
+        f"\n"
+        f"Paid users (lifetime): {s['paid_users_total']}\n"
+        f"Payments (lifetime): {s['payments_total']}\n"
+        f"\n"
+        f"Stars revenue: {s['stars_xtr']} ⭐\n"
+        f"Crypto revenue: ${s['crypto_usd']:.2f}\n"
+        f"\n"
+        f"New buyers (last {s['window_days']}d): {s['new_buyers_window']}"
+    )
+    await update.message.reply_text(msg)
 
 
 async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

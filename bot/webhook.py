@@ -62,13 +62,19 @@ def handle_ipn_payload(
     desc = payload.get("order_description", "")
     offer_name = desc.split(": ", 1)[1] if ": " in desc else "unknown"
 
+    amount_usd = 0.0
+    try:
+        amount_usd = float(payload.get("price_amount") or 0.0)
+    except (TypeError, ValueError):
+        amount_usd = 0.0
     storage.mark_paid(
         tg_user_id=tg_user_id,
         offer_name=offer_name,
         rail="crypto",
         external_id=str(payload.get("payment_id") or order_id),
+        amount_usd=amount_usd,
     )
-    return 200, f"marked paid: user={tg_user_id} offer={offer_name!r}"
+    return 200, f"marked paid: user={tg_user_id} offer={offer_name!r} amount=${amount_usd:.2f}"
 
 
 def _build_app(storage: Storage, np: NowPaymentsClient) -> web.Application:
