@@ -28,9 +28,11 @@ python -m bot.main
 
 ```bash
 cd /opt/latticeworks.io
-pip install pytest
+pip install pytest pytest-asyncio
 PYTHONPATH=. pytest bot/tests -v
 ```
+
+The handler tests (`test_handlers.py`) use mocked Telegram Update + Context objects and a mocked Claude client — no network, no Telegram bot token required.
 
 ## What this bot does NOT do (v1.1+)
 
