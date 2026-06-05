@@ -1,0 +1,24 @@
+[Unit]
+Description=LatticeWorks Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/latticeworks.io
+EnvironmentFile=/opt/latticeworks.io/bot/.env
+ExecStart=/opt/latticeworks.io/.venv/bin/python -m bot.main
+Restart=on-failure
+RestartSec=5s
+User=lw
+Group=lw
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/latticeworks.io/bot/data
+
+[Install]
+WantedBy=multi-user.target

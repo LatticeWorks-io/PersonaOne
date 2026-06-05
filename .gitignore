@@ -13,3 +13,12 @@ dist/
 build/
 .cache/
 secrets/
+
+# Bot + automation runtime data — never commit
+bot/data/
+data/
+*.db
+*.db-journal
+
+# Plans / agent state
+.claude/

@@ -1,0 +1,21 @@
+[Unit]
+Description=LatticeWorks discovery loop (Apify scrape)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/latticeworks.io
+EnvironmentFile=/opt/latticeworks.io/automation/.env
+ExecStart=/opt/latticeworks.io/.venv/bin/python -m automation.discovery_loop
+User=lw
+Group=lw
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/latticeworks.io/data
+
+[Install]
+WantedBy=multi-user.target

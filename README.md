@@ -1,49 +1,74 @@
 # LatticeWorks
 
-Isolated 12-component creator platform. Code, configs, and architectural decisions live here; the operational playbook (120 setup steps, kanban) lives in Craft.
+Isolated creator platform. The Craft playbook (`craft-content/`) is the operator setup runbook; the code in `bot/` + `automation/` is the actual product.
+
+## What's running
+
+- **`bot/`** — Telegram bot. Routes Twitter → Telegram → payment (Stars or crypto) → Claude conversation. One persona per process for v1.
+- **`automation/`** — two loops:
+  - `discovery_loop.py` (daily systemd timer) — Apify scrapes shoutout candidates + viral reply targets into operator-reviewed JSONL queues.
+  - `content_loop.py` (operator-triggered, never auto) — Claude drafts warmup posts in the persona's voice, late.dev schedules approved drafts to Twitter.
+- **`personas/`** — YAML persona files. Loaded into the bot at boot.
+- **`content/`** — pre-staged warmup posts (7-day compressed schedule).
+- **`docs/`** — runbook, discovery playbook, automation wiring.
+- **`craft-content/`** — snapshot of the original 120-step Craft playbook (read-only source for operator setup steps).
 
 ## Architecture
 
-- **3→1 persona pivot.** Claude handles orchestration, CRM, and Twitter. Llama and Flux run explicitly on RunPod.
-- **12-component isolated platform.** Each component is self-contained; the Craft playbook documents setup per page.
-- **Conversion path.** Twitter DM → Telegram. Monetization via Telegram Stars + crypto tipping, quote-based pricing.
-- **Shoutout management module.** Aged-account vendor DB, conversion tracking, SFS, recommender; compliance + alerts.
-- **Pricing tiers.** $245–$852/mo.
-- **Market window.** 12–18 months (validated 2026-06-01).
+- **Conversion path:** Twitter (warmup + paid shoutouts) → bio link → Telegram bot → paywall → Claude-driven conversation.
+- **Payment rails:** Telegram Stars (no KYC, instant) + NowPayments crypto invoices (1–3 day KYC, gives a second rail).
+- **Pricing:** per-engagement / per-bundle quotes, set in the persona file (`personas/_template.yaml`). NOT recurring monthly.
+- **Discovery:** reply-guy strategy (free) + paid shoutouts from aged accounts ($50–500 each) — see `docs/discovery.md`.
+- **Market window:** 12–18 months (validated 2026-06-01).
+
+## Quick start
+
+```bash
+git clone https://github.com/LatticeWorks-io/PersonaOne.git latticeworks.io
+cd latticeworks.io
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r bot/requirements.txt -r automation/requirements.txt
+cp bot/.env.example bot/.env                # fill in tokens
+cp automation/.env.example automation/.env  # fill in tokens
+cp personas/_template.yaml personas/persona-one.yaml  # fill in persona
+
+# Run tests
+PYTHONPATH=. pytest bot/tests -v
+
+# Run the bot
+set -a; . bot/.env; set +a
+python -m bot.main
+
+# Run discovery loop once (will write into data/)
+set -a; . automation/.env; set +a
+python -m automation.discovery_loop
+```
 
 ## Layout
 
 ```
 /opt/latticeworks.io/
-├── craft-pages.json          # folder + per-page doc/collection IDs
-├── craft-content/            # snapshot of the 12-page playbook as markdown
-│   ├── start-here.md
-│   └── page-01.md … page-12.md
-├── scripts/
-│   ├── build_lw_page01.py        # original Page 01 + folder + Start Here builder
-│   ├── build_lw_pages_02_12.py   # batch builder for pages 02–12
-│   ├── resume_lw_pages.py        # resume helper after partial run
-│   ├── cleanup_and_finish.py     # cleanup + finishing touches
-│   └── fetch_craft_docs.py       # pull craft-content/ snapshot from live Craft
-├── README.md
-└── .gitignore
+├── bot/                 # Telegram bot (main.py, handlers, claude_client, nowpayments, persona, storage, tests, systemd)
+├── automation/          # Apify discovery loop + late.dev content loop, systemd timer
+├── personas/            # YAML persona files
+├── content/             # warmup post backlog
+├── docs/                # mvp-runbook, discovery, automation
+├── craft-content/       # snapshot of original 120-step Craft playbook
+├── scripts/             # Craft authoring scripts (one-time, kept for reference)
+├── craft-pages.json     # Craft folder + page IDs (stale — folder was deleted)
+└── README.md
 ```
 
-`craft-pages.json` is symlinked from `~/.config/craft/latticeworks-ids.json` so existing Craft helpers keep working. The build scripts read `~/.config/craft/connect-url` and `~/.config/craft/token` for credentials — those stay outside the repo.
+## MVP path
 
-Refresh the snapshot any time with `python3 scripts/fetch_craft_docs.py`.
+See `docs/mvp-runbook.md` for the day-by-day execution. Headline:
 
-## Craft playbook
-
-Folder: `50527e79-f818-7a20-700f-d6d0596216ac`
-Start here doc: `6a3f32df-1168-296f-4d1d-c97188cd2cd2`
-
-12 pages, 10 steps each. Pages 01, 09, 10, 11, 12 have kanban collections. Page 01 is the workspace setup page.
+- Cut Pages 05, 12-voice from the original 120 steps.
+- Trim Page 04 (Hostwinds) to a $5–10/mo VPS.
+- Run Page 07 KYC in parallel with the bot build so the wait overlaps the critical path.
+- Compress Page 10 warmup from 14 days to 7 days.
+- **Re-examine Page 11 (Twitter ACC enrollment)** before launch — without it the Twitter side stays SFW indefinitely, which crushes conversion for adult-leaning offers.
 
 ## Status
 
-Brownfield design phase. Playbook authored 2026-06-02. No code shipped yet.
-
-## Git
-
-Local repo, no remote. Not part of the upfrontops org.
+Brownfield → MVP scaffold. Bot + automation code committed; operator setup steps (Pages 01–09 of the Craft playbook) still need execution.
