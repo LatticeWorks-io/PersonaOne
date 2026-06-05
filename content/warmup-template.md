@@ -1,65 +1,69 @@
-# Warmup content — 7-day compressed schedule
+# Twitter content — first 7 days for a disclosed AI companion
 
-> 22 slots covering day 1 through day 7, mapped to Page 10's compressed warmup. Pre-stage these BEFORE day 1 so warmup is drag-and-drop, not write-as-you-go. Schedule via late.dev (see `automation/late_client.py`) or post manually.
+> Builds initial follower count for a disclosed-AI product on Twitter. This is NOT a human-account warmup — every image is visibly AI-generated and labeled, every post leads with "AI companion." There is no "act human first" phase; the disclosure is the marketing.
 
-## Operating rules during warmup
+## Operating rules
 
-- **NO NSFW.** Period. Bio is SFW. Posts are SFW. Tags are SFW. ACC happens later if at all.
-- **NO bio link to Telegram yet** until day 5 — Twitter penalises new accounts pointing offsite immediately.
-- **DO reply daily** to 10–20 large accounts in your aesthetic neighbourhood. This is where the algorithm learns who you are and where your first followers come from. (See `docs/discovery.md` for the reply-guy playbook.)
-- **DO take a selfie on day 6.** Phone, natural light, real face on the operator. Builds non-bot signal.
-
----
-
-## Day 1 — set the lifestyle baseline (3 slots)
-
-- [ ] 09:00 — soft-launch post. Image + 1-line caption matching the persona's aesthetic. No call to action, no link. Just vibe.
-- [ ] 14:00 — reply to 1 large account (50k+ followers) in the persona's niche with something genuine and quote-worthy.
-- [ ] 21:00 — late-night text post (no image). 1–2 lines that hint at the persona's voice.
-
-## Day 2 — voice + visual rhythm (3 slots)
-
-- [ ] 10:00 — image post #2, different angle / setting / mood from Day 1's. Caption should sound like the same person.
-- [ ] 15:00 — short opinion post. Something mildly contrarian about the persona's niche. Invites replies.
-- [ ] 22:00 — quote-retweet a viral post in-niche, with a 1-line take.
-
-## Day 3 — grow engagement signal (3 slots)
-
-- [ ] 09:30 — text post phrased as a question to the audience. Invites comments.
-- [ ] 13:00 — reply-guy block: 15 thoughtful replies to large in-niche accounts. (Not a post — a working block.)
-- [ ] 20:00 — image post. Caption: a tiny vulnerable detail. Builds parasocial signal.
-
-## Day 4 — first identifiable hook (2 slots + 1 working block)
-
-- [ ] 11:00 — image post. Start of a recurring visual hook — same caption format you'll reuse weekly (e.g. "weekend mood:", "currently:", whatever lands).
-- [ ] 16:00 — reply-guy block: 15 replies, target slightly smaller accounts (10k–50k) so your replies sit higher in their thread.
-- [ ] 21:30 — text post: a one-line truth that lands. No image.
-
-## Day 5 — bio link goes live (2 slots)
-
-- [ ] 09:00 — UPDATE BIO: add the link to your domain landing page (which routes to Telegram). Tweet "fixed the link in bio :)"
-- [ ] 19:00 — image post. Caption should match where you're sending people (curiosity hook, not a sales pitch).
-
-## Day 6 — first selfie + DM-friendly signal (3 slots)
-
-- [ ] 10:00 — selfie. Phone, natural light, on the operator. Crucial non-bot signal.
-- [ ] 15:00 — text post that invites DMs in a non-thirsty way. Something like "my dm's are unhinged this week, ask me anything."
-- [ ] 22:00 — image post matching the selfie's energy.
-
-## Day 7 — launch eve (3 slots + paid shoutouts land)
-
-- [ ] 09:00 — image post: best one of the week. Caption hooks at what's "coming" without specifying.
-- [ ] 14:00 — paid shoutouts from 2–3 aged accounts land in this window (see `docs/discovery.md`).
-- [ ] 21:00 — explicit "DM me on Telegram" post timed to ride the shoutout traffic.
-
-## After Day 7 — daily ongoing
-
-- 1 image post + 1 text post per day, scheduled via late.dev.
-- 1 reply-guy block per day (15–30 replies in 30 min).
-- Reinvest first revenue into more paid shoutouts; track conversion in `discovery.md`.
+- **Every image is overtly AI-generated.** Stylized, clearly not photo-realistic, or watermarked/labeled. No mistaken-identity risk.
+- **Every post leads with the product nature.** "AI companion," "AI girlfriend," "AI [whatever the angle is]" — first words.
+- **Bio is live from day 1** with the AI label + the Telegram link + the price. No bait, no later-reveal.
+- **Reply targets** are AI-companion-adjacent communities (r/replika, r/CharacterAI, AI-art Twitter, candy.ai discourse), not generic lifestyle accounts.
+- **DO NOT post lifestyle / aesthetic content that implies a real person.** That's the predatory shape this product is explicitly not.
 
 ---
 
-## What to write into each slot
+## Day 1 — launch (3 slots)
 
-Each slot is a placeholder until the operator (or a Claude pass) fills it in. The persona's `system_prompt` should be able to generate a draft for any of these — pass the slot's intent + the persona file, get a draft. Iterate before scheduling.
+- [ ] 09:00 — launch post: "I built an AI companion. Here's what she does." 1 AI-generated portrait (labeled), 3-bullet feature list, bio link.
+- [ ] 14:00 — feature post #1: pick one strength (always available / no judgment / infinite patience / $30 instead of $300) + a concrete example.
+- [ ] 21:00 — Q&A: "yes she's actually AI. yes the convo is good. no I don't read your messages." Pre-empt the FAQs.
+
+## Day 2 — depth (3 slots)
+
+- [ ] 10:00 — AI-generated portrait #2, different mood / setting. Caption: another use case ("late-night when you can't sleep", "vent without judgment", whatever angle).
+- [ ] 15:00 — conversation snippet (anonymized, with screenshot consent baked into the bot's ToS — operator's call). Shows the actual voice + tone.
+- [ ] 22:00 — reply to a viral AI-companion thread (r/replika or CharacterAI Twitter). Genuine take, not a sales pitch.
+
+## Day 3 — credibility (3 slots)
+
+- [ ] 09:30 — "how I built her" thread — system prompt design choices, what makes the voice work. Build-in-public. Builds trust.
+- [ ] 13:00 — reply block: 15 thoughtful replies in AI-companion / AI-art / character-ai communities. Not a post — a working block.
+- [ ] 20:00 — testimonial repost / quote-tweet a user who's shared their experience (with consent).
+
+## Day 4 — pricing transparency (3 slots)
+
+- [ ] 11:00 — pricing post: "$30 for 30 min, $75 for voice notes, $150 for all-night chat. AI, disclosed. Pay-per-use, no subscription, no surprise charges." Owns the model.
+- [ ] 16:00 — reply block: target candy.ai / replika / character.ai Twitter discussions. Position as the third option (Telegram-native, pay-per-use).
+- [ ] 21:30 — humor post about the absurdity of AI companion discourse. Show the product has a point of view.
+
+## Day 5 — first paid acquisition (2 slots)
+
+- [ ] 09:00 — pinned tweet: clearest one-liner + bio link + clear AI label. This is the post the paid shoutout traffic will land on.
+- [ ] 19:00 — AI-generated content #3, with a sample tagline that signals voice ("if you can't sleep, dm me").
+
+## Day 6 — social proof (3 slots)
+
+- [ ] 10:00 — user testimonial #2 (with consent). What surprised them about the experience.
+- [ ] 15:00 — comparison post: "vs. candy.ai: cheaper per use, Telegram-native, no app to install" (or whatever the honest differentiator is).
+- [ ] 22:00 — AI-generated portrait #4 + caption matching the product's voice.
+
+## Day 7 — launch escalation (3 slots)
+
+- [ ] 09:00 — best image of the week + best caption (operator's call). Boost candidate.
+- [ ] 14:00 — paid shoutouts from 2–3 AI-adjacent accounts land. Coordinate timing.
+- [ ] 21:00 — "first 100 buyers get $5 off" or similar low-friction conversion hook for the shoutout traffic.
+
+## After Day 7 — ongoing daily
+
+- 1 image post + 1 text post per day. Schedule via `automation/content_loop.py` → late.dev.
+- 1 reply block per day (15–30 replies) in AI-companion-adjacent communities. Targets from `data/reply_queue.jsonl`.
+- Reinvest first revenue into more paid shoutouts in AI-adjacent niches. Track per-shoutout conversion in `docs/discovery.md`.
+
+---
+
+## What this is NOT
+
+- NOT a "selfie + lifestyle aesthetic" account that reveals AI later
+- NOT a 7-day SFW-warmup-as-human period
+- NOT targeting "lonely men following adult creators"
+- The product is openly an AI companion in the same product category as candy.ai. The marketing reflects that.
