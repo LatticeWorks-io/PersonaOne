@@ -1,0 +1,10 @@
+[Unit]
+Description=Run LatticeWorks discovery loop daily at 09:07 local
+
+[Timer]
+OnCalendar=*-*-* 09:07:00
+Persistent=true
+Unit=lw-discovery.service
+
+[Install]
+WantedBy=timers.target
