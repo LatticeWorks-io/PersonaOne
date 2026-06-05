@@ -62,7 +62,7 @@ async def main() -> None:
     if args.commit:
         late = LateClient(
             api_key=os.environ["LW_LATE_API_KEY"],
-            twitter_profile_id=os.environ["LW_LATE_TWITTER_PROFILE_ID"],
+            twitter_account_id=os.environ["LW_LATE_TWITTER_ACCOUNT_ID"],
         )
         QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
         if not QUEUE_PATH.exists():
