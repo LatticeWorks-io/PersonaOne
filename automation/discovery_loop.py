@@ -27,6 +27,7 @@ import json
 import logging
 import os
 from dataclasses import asdict
+from datetime import datetime, timezone
 from pathlib import Path
 
 from automation.apify_client import ApifyDiscovery
@@ -37,6 +38,32 @@ log = logging.getLogger("lw-discovery")
 DATA_DIR = Path("data")
 CANDIDATES_PATH = DATA_DIR / "shoutout_candidates.jsonl"
 REPLIES_PATH = DATA_DIR / "reply_queue.jsonl"
+APIFY_RUNS_PATH = DATA_DIR / "apify_runs.jsonl"
+
+# Per-result + startup cost estimates per actor, in USD.
+# Verified 2026-06-05 against Apify Store pricing.
+ACTOR_COST: dict[str, dict[str, float]] = {
+    "xquik/x-follower-scraper": {"per_result": 0.00015, "startup": 0.0},
+    "api-ninja/x-twitter-advanced-search": {"per_result": 0.00035, "startup": 0.01},
+}
+
+
+def _estimate_cost(actor: str, results: int) -> float:
+    p = ACTOR_COST.get(actor, {"per_result": 0.0, "startup": 0.0})
+    return results * p["per_result"] + p["startup"]
+
+
+def _log_apify_run(actor: str, results: int) -> None:
+    """Append a run row to data/apify_runs.jsonl for the weekly cost report."""
+    APIFY_RUNS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    row = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "actor": actor,
+        "results_count": int(results),
+        "cost_usd_estimate": round(_estimate_cost(actor, results), 6),
+    }
+    with APIFY_RUNS_PATH.open("a") as f:
+        f.write(json.dumps(row) + "\n")
 
 
 def _append_dedup(path: Path, items: list[dict], dedup_key: str) -> int:
@@ -70,6 +97,7 @@ async def main() -> None:
 
     log.info("Pulling shoutout candidates from %d seed handles…", len(seeds))
     candidates = await discovery.find_shoutout_candidates(seeds)
+    _log_apify_run("xquik/x-follower-scraper", len(candidates))
     added_c = _append_dedup(
         CANDIDATES_PATH,
         [asdict(c) for c in candidates],
@@ -79,6 +107,7 @@ async def main() -> None:
 
     log.info("Pulling reply targets for %d keywords…", len(keywords))
     targets = await discovery.find_reply_targets(keywords)
+    _log_apify_run("api-ninja/x-twitter-advanced-search", len(targets))
     added_r = _append_dedup(
         REPLIES_PATH,
         [asdict(t) for t in targets],
