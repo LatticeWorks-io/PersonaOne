@@ -57,8 +57,12 @@ All loop output. Operator-readable JSONL. Git-ignored.
 
 | Service | Monthly | Notes |
 |---|---|---|
-| Apify | ~$150 | 2 runs/day, ~200 items each |
+| Apify | ~$3 | 200 follower results/day @ $0.15/1K + 100 tweet results/day @ $0.35/1K + startup |
 | late.dev | $20–50 | Single Twitter profile tier |
 | Claude (drafts) | <$10 | 22 warmup posts ≈ 10k tokens |
 | VPS (Hostinger / DO) | $5–10 | Bot + loops co-located |
-| **Total** | **~$200/mo** | vs. ~10 hr/week of operator time it replaces |
+| **Total** | **~$40–75/mo** | vs. ~10 hr/week of operator time it replaces |
+
+Apify cost revised down from earlier estimate (was ~$150/mo). Verified actor pricing on 2026-06-05:
+- `xquik/x-follower-scraper`: $0.15/1K results, server-side follower-count filter so we don't pay for off-target results.
+- `api-ninja/x-twitter-advanced-search`: $0.35/1K results + $0.01 per run.

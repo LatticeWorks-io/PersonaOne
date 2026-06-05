@@ -1,20 +1,23 @@
 """Apify wrapper for the discovery loop.
 
-We use Apify Actors as our scraping primitive. The two we care about for MVP:
+We use two Apify Actors as scraping primitives:
 
-1. **Twitter Scraper** — given a list of in-niche large accounts, pull their followers
-   and engagement rings; score candidates by follower count + activity. Output feeds
-   the shoutout vendor DB.
+1. **`xquik/x-follower-scraper`** (verified 2026-06-05) — pulls followers of
+   seed accounts in our niche with built-in `minFollowers` / `maxFollowers`
+   filters, so we don't pay for results outside the 10k–100k sweet-spot band.
+   $0.15 per 1,000 filtered results. 99.2% success rate.
+   https://apify.com/xquik/x-follower-scraper
 
-2. **Twitter Search Scraper** — given a list of niche keywords, pull viral recent
-   tweets (>1k likes, last 24h). Output feeds the reply-guy queue.
+2. **`api-ninja/x-twitter-advanced-search`** (verified 2026-06-05) — searches
+   tweets with `engagementMinLikes` + `timeWithinTime` filters for the
+   reply-guy queue. $0.35 per 1,000 results + $0.01 startup. 99.9% success.
+   https://apify.com/api-ninja/x-twitter-advanced-search
 
-Apify charges per actor run + compute. Budget envelope: ~$5/day for both loops at
-this scale. See https://apify.com/pricing.
+Total daily cost at 200 follower results + 100 tweet results: ~$0.08/day,
+~$2.50/month. Tune `max_results` in calls if you want more.
 
-The actor IDs below are placeholders — swap for whatever you've validated. The
-function signatures are stable; you can rotate actors without changing the
-discovery loop.
+Actor IDs are pinned with override params so the wrapper survives if you
+swap actors later — only the input shape mapping changes.
 """
 from __future__ import annotations
 
@@ -45,8 +48,8 @@ class ApifyDiscovery:
         self,
         api_token: str,
         *,
-        follower_actor: str = "apidojo/twitter-scraper-lite",
-        search_actor: str = "apidojo/tweet-scraper",
+        follower_actor: str = "xquik/x-follower-scraper",
+        search_actor: str = "api-ninja/x-twitter-advanced-search",
     ):
         self._client = ApifyClientAsync(token=api_token)
         self._follower_actor = follower_actor
@@ -59,27 +62,40 @@ class ApifyDiscovery:
         min_followers: int = 10_000,
         max_followers: int = 100_000,
         max_results: int = 200,
+        bio_contains: str | None = None,
     ) -> list[TwitterCandidate]:
-        """Pull followers of seed accounts, filter to the sweet-spot follower band."""
-        run = await self._client.actor(self._follower_actor).call(
-            run_input={
-                "handles": seed_handles,
-                "getFollowers": True,
-                "maxItems": max_results,
-            }
-        )
+        """Pull followers of seed accounts, filtered to the sweet-spot follower band.
+
+        The actor's `minFollowers`/`maxFollowers` do the filtering server-side,
+        so we only pay for results that match (not the firehose).
+        """
+        run_input: dict = {
+            "twitterHandles": [h.lstrip("@") for h in seed_handles],
+            "relation": "followers",
+            "maxItems": max_results,
+            "minFollowers": min_followers,
+            "maxFollowers": max_followers,
+            "minAccountAgeDays": 90,  # filters obvious bot-net followers
+            "outputMode": "compact",
+            "includeTargetMetadata": True,
+        }
+        if bio_contains:
+            run_input["bioContains"] = bio_contains
+
+        run = await self._client.actor(self._follower_actor).call(run_input=run_input)
         items = await self._client.dataset(run["defaultDatasetId"]).list_items()
+
         out: list[TwitterCandidate] = []
         for item in items.items:
-            followers = int(item.get("followersCount") or item.get("followers") or 0)
-            if not (min_followers <= followers <= max_followers):
+            handle = item.get("username") or item.get("screen_name") or ""
+            if not handle:
                 continue
             out.append(
                 TwitterCandidate(
-                    handle=item.get("userName") or item.get("handle") or "",
-                    followers=followers,
+                    handle=handle,
+                    followers=int(item.get("followers") or 0),
                     bio=item.get("description") or "",
-                    last_active_at=item.get("lastActiveAt"),
+                    last_active_at=item.get("createdAt"),  # account creation; actor doesn't expose last-active
                 )
             )
         return out
@@ -90,29 +106,39 @@ class ApifyDiscovery:
         *,
         min_likes: int = 1_000,
         max_results: int = 100,
+        within: str = "1d",
+        language: str = "en",
     ) -> list[ReplyTarget]:
-        """Pull recent viral tweets matching niche keywords for the reply-guy queue."""
-        run = await self._client.actor(self._search_actor).call(
-            run_input={
-                "searchTerms": keywords,
-                "sort": "Top",
-                "tweetLanguage": "en",
-                "maxItems": max_results,
-            }
-        )
+        """Pull recent viral tweets matching niche keywords for the reply-guy queue.
+
+        `within` is the actor's `timeWithinTime` ('1d' = last 24h, '6h' etc.).
+        Engagement filter is server-side via `engagementMinLikes`.
+        """
+        run_input: dict = {
+            "query": " OR ".join(keywords) if keywords else "",
+            "contentKeywords": keywords,
+            "search_type": "Top",
+            "numberOfTweets": max(max_results, 20),  # actor minimum is 20
+            "engagementMinLikes": min_likes,
+            "timeWithinTime": within,
+            "contentLanguage": language,
+            "tweetTypes": ["original"],  # exclude replies/quotes to avoid noise
+        }
+        run = await self._client.actor(self._search_actor).call(run_input=run_input)
         items = await self._client.dataset(run["defaultDatasetId"]).list_items()
+
         out: list[ReplyTarget] = []
         for item in items.items:
-            likes = int(item.get("likeCount") or 0)
-            if likes < min_likes:
+            tweet_id = str(item.get("tweet_id") or item.get("id_str") or "")
+            if not tweet_id:
                 continue
             out.append(
                 ReplyTarget(
-                    tweet_id=str(item.get("id") or ""),
-                    author_handle=item.get("author", {}).get("userName", "") if isinstance(item.get("author"), dict) else "",
+                    tweet_id=tweet_id,
+                    author_handle=item.get("screen_name", ""),
                     text=item.get("text") or "",
-                    likes=likes,
-                    posted_at=item.get("createdAt") or "",
+                    likes=int(item.get("favorites") or 0),
+                    posted_at=item.get("created_at") or "",
                 )
             )
         return out
